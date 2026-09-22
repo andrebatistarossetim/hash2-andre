@@ -1,1 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Força Bruta</title>
 
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-color: #c9d1d9;
+            --text-muted: #8b949e;
+            --primary-color: #58a6ff;
+            --success-color: #2ea44f;
+            --danger-color: #f85149;
+            --accent-color: #bc8cff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 35px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--primary-color);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-box {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: rgba(139, 148, 158, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .tentativa {
+            font-family: monospace;
+            font-size: 1.4rem;
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .barra {
+            width: 100%;
+            height: 14px;
+            background-color: var(--bg-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .barra-progresso {
+            width: 0%;
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.05s;
+        }
+
+        .status {
+            margin-top: 15px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .resultado {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .sucesso {
+            display: block;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+            background-color: rgba(46, 164, 79, 0.12);
+        }
+
+        .erro {
+            display: block;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            background-color: rgba(248, 81, 73, 0.12);
+        }
+
+        .explicacao {
+            margin-top: 30px;
+            padding: 20px;
+            border-left: 4px solid var(--accent-color);
+            background-color: rgba(188, 140, 255, 0.05);
+            line-height: 1.6;
+        }
+
+        code {
+            background-color: var(--bg-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-color);
+            font-family: monospace;
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🔑 Simulador de Força Bruta</h1>
+
+    <p class="subtitle">
+        Demonstração educativa de como combinações de caracteres podem ser
+        testadas até encontrar uma senha curta. Para manter o exemplo rápido,
+        o simulador aceita no máximo 3 caracteres.
+    </p>
+
+    <div class="grid">
+
+        <div class="input-group">
+            <label for="senha">Senha para o teste</label>
+
+            <input
+                type="text"
+                id="senha"
+                maxlength="3"
+                placeholder="Ex: cab"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="input-group">
+            <label for="caracteres">Conjunto de caracteres</label>
+
+            <select id="caracteres">
+                <option value="abc">abc</option>
+                <option value="abcd">abcd</option>
+                <option value="abc123">abc123</option>
+            </select>
+        </div>
+
+    </div>
+
+    <button id="iniciar">
+        ▶️ Iniciar teste
+    </button>
+
+    <div class="progress-box">
+
+        <div class="tentativa" id="tentativa">
+            Tentativa: -
+        </div>
+
+        <div class="barra">
+            <div
+                class="barra-progresso"
+                id="barraProgresso">
+            </div>
+        </div>
+
+        <div class="status" id="status">
+            Aguardando início...
+        </div>
+
+    </div>
+
+    <div class="resultado" id="resultado"></div>
+
+    <div class="explicacao">
+
+        <strong>💡 Como funciona?</strong>
+
+        <p>
+            O programa cria combinações de caracteres e verifica cada uma
+            delas. Por exemplo, usando <code>abc</code>, algumas tentativas
+            serão:
+        </p>
+
+        <p>
+            <code>a</code> → <code>b</code> → <code>c</code> →
+            <code>aa</code> → <code>ab</code> → <code>ac</code> →
+            <code>ba</code>...
+        </p>
+
+        <p>
+            Quando uma combinação é igual à senha definida para o exercício,
+            o programa interrompe o teste e informa quantas tentativas foram
+            realizadas.
+        </p>
+
+    </div>
+
+</div>
+
+<script>
+    const senhaInput = document.getElementById("senha");
+    const caracteresSelect = document.getElementById("caracteres");
+    const botao = document.getElementById("iniciar");
+
+    const tentativaDisplay = document.getElementById("tentativa");
+    const statusDisplay = document.getElementById("status");
+    const barraProgresso = document.getElementById("barraProgresso");
+    const resultado = document.getElementById("resultado");
+
+    let executando = false;
+
+    /*
+     * Gera todas as combinações de um determinado tamanho.
+     *
+     * Exemplo:
+     * caracteres = "abc"
+     * tamanho = 2
+     *
+     * Resultado:
+     * aa
+     * ab
+     * ac
+     * ba
+     * bb
+     * bc
+     * ca
+     * cb
+     * cc
+     */
+    function gerarCombinacoes(caracteres, tamanho) {
+        const resultado = [];
+
+        function gerar(prefixo, restante) {
+
+            if (restante === 0) {
+                resultado.push(prefixo);
+                return;
+            }
+
+            for (const caractere of caracteres) {
+                gerar(
+                    prefixo + caractere,
+                    restante - 1
+                );
+            }
+        }
+
+        gerar("", tamanho);
+
+        return resultado;
+    }
+
+
+    async function iniciarTeste() {
+
+        if (executando) {
+            return;
+        }
+
+        const senha = senhaInput.value;
+        const caracteres = caracteresSelect.value;
+
+        if (senha.length === 0) {
+            resultado.textContent =
+                "⚠️ Digite uma senha para iniciar o exercício.";
+
+            resultado.className = "resultado erro";
+
+            return;
+        }
+
+        if (senha.length > 3) {
+            resultado.textContent =
+                "⚠️ Para este exercício, utilize no máximo 3 caracteres.";
+
+            resultado.className = "resultado erro";
+
+            return;
+        }
+
+        /*
+         * Verifica se todos os caracteres da senha
+         * pertencem ao conjunto escolhido.
+         */
+        for (const caractere of senha) {
+
+            if (!caracteres.includes(caractere)) {
+
+                resultado.textContent =
+                    `⚠️ O caractere "${caractere}" não pertence ao conjunto escolhido.`;
+
+                resultado.className = "resultado erro";
+
+                return;
+            }
+        }
+
+        executando = true;
+        botao.disabled = true;
+
+        resultado.className = "resultado";
+        resultado.textContent = "";
+
+        tentativaDisplay.textContent =
+            "Tentativa: -";
+
+        statusDisplay.textContent =
+            "Iniciando combinações...";
+
+        barraProgresso.style.width = "0%";
+
+
+        let numeroTentativas = 0;
+
+        /*
+         * Testamos primeiro senhas de tamanho 1,
+         * depois tamanho 2 e finalmente tamanho 3.
+         */
+        for (
+            let tamanho = 1;
+            tamanho <= senha.length;
+            tamanho++
+        ) {
+
+            const combinacoes =
+                gerarCombinacoes(caracteres, tamanho);
+
+            for (
+                let i = 0;
+                i < combinacoes.length;
+                i++
+            ) {
+
+                const combinacao = combinacoes[i];
+
+                numeroTentativas++;
+
+                tentativaDisplay.textContent =
+                    `Tentativa: ${combinacao}`;
+
+                statusDisplay.textContent =
+                    `Tentativa ${numeroTentativas}`;
+
+                /*
+                 * Atualiza a barra de progresso.
+                 */
+                const progresso =
+                    ((i + 1) / combinacoes.length) * 100;
+
+                barraProgresso.style.width =
+                    `${progresso}%`;
+
+
+                /*
+                 * Verifica se encontramos a senha.
+                 */
+                if (combinacao === senha) {
+
+                    tentativaDisplay.textContent =
+                        `🔓 Encontrado: ${combinacao}`;
+
+                    statusDisplay.textContent =
+                        `Foram realizadas ${numeroTentativas} tentativas.`;
+
+                    resultado.innerHTML =
+                        `🎉 Combinação encontrada!<br><br>
+                         Senha: <code>${combinacao}</code><br>
+                         Tentativas: ${numeroTentativas}`;
+
+                    resultado.className =
+                        "resultado sucesso";
+
+                    executando = false;
+                    botao.disabled = false;
+
+                    return;
+                }
+
+                /*
+                 * Pequena pausa para tornar o progresso visível.
+                 */
+                await new Promise(
+                    resolver => setTimeout(resolver, 50)
+                );
+            }
+        }
+
+        /*
+         * Caso a combinação não tenha sido encontrada.
+         */
+        resultado.textContent =
+            "❌ A combinação não foi encontrada.";
+
+        resultado.className =
+            "resultado erro";
+
+        executando = false;
+        botao.disabled = false;
+    }
+
+
+    botao.addEventListener(
+        "click",
+        iniciarTeste
+    );
+</script>
+
+</body>
+</html>
